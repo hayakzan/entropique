@@ -2,15 +2,6 @@
 //entropique--a music information retrieval tool
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////////////////////////////////////
-//TOSOLVE: aesthetics... add the time domain, as well as pitch/rhythm and entropy
-//
-//TODO: add entropy analysis as well as a different graph
-// dialogue for .aiff selection
-// scale the ranges of window elements according to the pitch/temporal ranges
-///////////////////////////////////////////////////////////////////////////////////////////
-
 /////////////////////////////////////////////////////
 //Entire system
 /////////////////////////////////////////////////////
@@ -142,7 +133,7 @@ SynthDef(\entropy, {
 
 	entropy=SpectralEntropy.kr(fft,2**11,1);    //one output band (so full spectrum's entropy)
 
-	Out.kr(~businVal, entropy); //send to the bus WE'RE NOT USING THIS!!!
+	Out.kr(~businVal, entropy);
 
 	SendReply.kr(
 		Impulse.kr(400),
@@ -174,97 +165,6 @@ SynthDef(\entropy, {
 .grid_(-1@1)
 	.value_([~atsFrame.linlin(0,80,0,2), ~freqs.flat.linlin(0,800,0,1)]).setEditable(0,false); //add linlin with the highest value
 });
-
-
-
-~timeArray = ~timeArray.flat;
-~atsFrame = ~atsFrame.drop(1); //why are we using this? so that we would know what rhythmic change comes during what pitch
-
 )
 
 
-
-
-
-/////////////////////////////////////////////////////
-//working GUI
-/////////////////////////////////////////////////////
-
-(
-~freqs = Array.new;
-~atsframe = Array[0]; //this list has to be populated with frames!!!
-~pitchData = Array.new;
-)
-
-
-(
-var atsFile, enView, openButton, atsBuf, atsPath, atsDispButton, win, atsDisp;
-
-//init ats
-// atsFile = AtsFile.new("/Users/rikyu/Desktop/PORTFOLIO/sine.ats".standardizePath).load;
-
-~loadATS = Routine({
-~atsframe.size.do({|i|
-	~freqs = atsBuf.getFrameFreq(~atsframe[i]).flat; //frame list
-	~pitchData.add(~freqs[i]);
-	});
-~enView = EnvelopeView(win, Rect(30, 20, 1200, 100))
-    .thumbSize_(10)
-.drawLines_(false)
-    .fillColor_(Color.black)
-    .drawRects_(true)
-.gridOn_(true)
-.grid_(-1@1)
-.value_([[0], ~pitchData.linlin(0,800,0,1)]).setEditable(0,false);
-});
-
-
-
-/////////it gives getFrameFreq not understood because file is not loaded/////////////
-
-//GUI
-win = Window("Spectrum and Spectrogram", Rect(20, 4000, 1260, 960), false).front;
-win.view.background_(Color.grey);
-win.alpha_(0.98);
-win.onClose = {Buffer.freeAll; "Eyvallah".postln;"".postln};
-
-h = EnvelopeView(win, Rect(30, 20, 1200, 100))
-    .thumbSize_(0)
-.drawLines_(false)
-    .fillColor_(Color.black)
-    .drawRects_(true)
-.gridOn_(true)
-.grid_(-1@1)
-.value_([[0], [0]]).setEditable(0,false);
-
-
-openButton = Button.new(win, Rect(30, 0, 130, 20))
-.states_([["Select ATS file", Color.black, Color.new(0.63915638923645, 0.61455166339874, 0.3189784526825)]])
-.action_({
-	Dialog.openPanel(
-		okFunc: { |path|
-			atsPath = path;
-			atsBuf = AtsFile.new(path, s);
-		},
-		cancelFunc: {"cancelled"}
-	);
-});
-
-// ATS Analysis Button
-atsDispButton= Button.new(win, Rect(250, 120, 250, 30))
-.states_([["Analyze spectrum",Color.black, Color.new(0.76396951675415, 0.87935035228729, 0.62494311332703)]])
-.action_({
-	AppClock.play(~loadATS.reset); //or value? or value AND reset?
-	~pitchData = [ ];
-});
-
-//entropy functions WE NEED THIS FOR TIMBRE, NOT FOR RHYTHM
-~loadEnt = Routine({
-		~entDisp.value = ~entarray.asArray;
-		0.0001.wait;
-		~entDisp.refresh;
-		~entDisp.value = ~entarray.asArray;
-		~entDisp.domainSpecs = [0, ~buf.duration, \lin,0,0,"secs"].asSpec; ~entDisp.refresh;
-	});
-
-)
