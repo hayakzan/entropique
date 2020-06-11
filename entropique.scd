@@ -2,9 +2,8 @@
 //entropique--a music information retrieval tool
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////
-//Entire system
-/////////////////////////////////////////////////////
+//IMPORTANT: we need the most salient freq/amp
+
 (
 // a = AtsFile.new("/Users/rikyu/Desktop/PORTFOLIO/sine.ats".standardizePath).load;
 b = Buffer.read(s,"/Users/rikyu/Desktop/PORTFOLIO/rec.aiff".standardizePath);
@@ -13,6 +12,7 @@ b = Buffer.read(s,"/Users/rikyu/Desktop/PORTFOLIO/rec.aiff".standardizePath);
 ~atsFrame = Array[0]; //this list has to be populated with frames!!!
 ~timeArray = Array.new;
 ~freqs = Array.new;
+~amps = Array.new;
 ~entArray = List.new;
 ~entTimearray = Array.new;
 
@@ -23,7 +23,11 @@ b = Buffer.read(s,"/Users/rikyu/Desktop/PORTFOLIO/rec.aiff".standardizePath);
 	~frameNo = "ATS frame no: " ++ ~atsTime;
 	~frameNo.postln; //post the frame numbertime
 	~atsFrame.add(~atsTime);
+
+//we need the most salient freq/amp not the last
 ~freqs.add(~atsBuf.getFrameFreq(~atsFrame.last).flat);
+~amps.add(~atsBuf.getFrameAmp(~atsFrame.last).flat);
+
 /*	t.postln;*/
 }).add;
 
@@ -51,7 +55,7 @@ win.view.background_(Color.grey);
 win.alpha_(0.98);
 win.onClose = {Buffer.freeAll; "Eyvallah".postln;"".postln};
 
-h = EnvelopeView(win, Rect(30, 20, 1200, 100))
+h = EnvelopeView(win, Rect(30, 78, 1200, 100))
     .thumbSize_(0)
 .drawLines_(false)
     .fillColor_(Color.black)
@@ -61,7 +65,7 @@ h = EnvelopeView(win, Rect(30, 20, 1200, 100))
 .value_([[0], [0]]).setEditable(0,false);
 
 // entropy display
-~entDisp = Plotter.new(bounds: Rect(30, 410, 1200, 100),parent: win);
+~entDisp = Plotter.new(bounds: Rect(30, 250, 1200, 100),parent: win);
 ~entDisp.value = [0];
 
 openButton = Button.new(win, Rect(30, 0, 130, 20)) //will also select the aiff file LATER
@@ -77,10 +81,10 @@ openButton = Button.new(win, Rect(30, 0, 130, 20)) //will also select the aiff f
 });
 
 // ATS Analysis Button
-atsDispButton= Button.new(win, Rect(250, 120, 250, 30))
+atsDispButton= Button.new(win, Rect(30, 50, 250, 30))
 .states_([["Extract pitch 'n' rhythm",Color.black, Color.new(0.76396951675415, 0.87935035228729, 0.62494311332703)]])
 .action_({
-	~time = OSCSched.new; //actual time, STARTS HERE
+	~time = OSCSched.new;
 	AppClock.play(~loadATS.reset);
 	~freqs = [ ];
 	~atsFrame = Array[0];
@@ -88,7 +92,7 @@ atsDispButton= Button.new(win, Rect(250, 120, 250, 30))
 
 
 // Entropy Button
-~entDispButton= Button.new(win, Rect(500, 120, 250, 30))
+~entDispButton= Button.new(win, Rect(30, 220, 250, 30))
 .states_([["Analyze entropy",Color.black, Color.new(0.76396951675415, 0.87935035228729, 0.62494311332703)]])
 .action_({
 	AppClock.play(~loadEnt.reset);
@@ -113,7 +117,7 @@ in = BufRd.ar(1, b, Line.ar(0, BufFrames.kr(b), BufDur.kr(b), doneAction: 2)); /
 	// rMaxThr = 0.01;
 	rMax = RunningMax.kr(entropy, Impulse.kr(200)); //tracks the highest values of entropy
 
-	Out.kr(~businVal, rMax); //send to the bus WE'RE NOT USING THIS!!!
+	Out.kr(~businVal, rMax);
 
 	//send the vals to the client side in order to collect them
 	SendReply.kr(
@@ -156,7 +160,7 @@ SynthDef(\entropy, {
 
 
 ~refRout = Routine({
-~enView = EnvelopeView(win, Rect(30, 20, 1200, 100))
+~enView = EnvelopeView(win, Rect(30, 78, 1200, 100))
     .thumbSize_(12)
 .drawLines_(false)
     .fillColor_(Color.black)
@@ -166,5 +170,6 @@ SynthDef(\entropy, {
 	.value_([~atsFrame.linlin(0,80,0,2), ~freqs.flat.linlin(0,800,0,1)]).setEditable(0,false); //add linlin with the highest value
 });
 )
+
 
 
