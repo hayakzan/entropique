@@ -50,10 +50,10 @@ fork {
 
 
 //GUI
-win = Window("Spectrum and Spectrogram", Rect(20, 4000, 1260, 960), false).front;
+win = Window("Rhythmic info and Entropy analysis", Rect(20, 4000, 1260, 960), false).front;
 win.view.background_(Color.grey);
 win.alpha_(0.98);
-win.onClose = {Buffer.freeAll; "Eyvallah".postln;"".postln};
+win.onClose = {Buffer.freeAll; "Done".postln;"".postln};
 
 h = EnvelopeView(win, Rect(30, 78, 1200, 100))
     .thumbSize_(0)
