@@ -1,6 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 //entropique--a music information retrieval tool
 ///////////////////////////////////////////////////////////////////////////////////////////
+//there are two parts to be intrepreted in the code, first place the cursor somewhere between
+//the first pair of parentheses and press Cmd-Return (Ctrl-Enter on the PC)
+//and then do the same with the second pair of parentheses to start the GUI
 
 (
 // for testing both the entropy change and rhythmic extraction: a sine wave interrupted by white noise
@@ -33,6 +36,10 @@ b = Buffer.read(s,"/Users/rikyu/Desktop/PORTFOLIO/github/Entropique/entropique_t
 ~o2 = OSCdef(\new, {|msg, time, addr, recvPort| [~entArray.add(msg[3]), ~entTimearray.add(time)]}, '/msg1');
 )
 
+//GUI: first select the ATS file.
+//wait a bit after clicking "Extract pitch 'n' rhythm" for results to appear. The data will appear
+//in the post window.
+//similarly, wait after clicking "Analyze entropy".
 
 (
 var atsFile, enView, openButton, atsBuf, atsPath, atsDispButton, entDispButton, win, atsDisp;
