@@ -18,7 +18,6 @@ b = Buffer.read(s,"/Users/rikyu/Desktop/PORTFOLIO/github/Entropique/entropique_t
 ~entArray = List.new;
 ~entTimearray = Array.new;
 
-//OSCresponder is deprecated, but at the moment cannot get newer OSC responders working...TODO:get them working!
 ~o1 = OSCresponder(nil, 'the_answer', { |t, r, msg|
 	~timeArray.add(~time.time); //add to the time array
 	~atsTime = (~time.time.round(0.05)/0.05 + 1);
